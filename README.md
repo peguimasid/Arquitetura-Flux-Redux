@@ -75,3 +75,66 @@ export default App;
 ```
 
 Nos nao colocamos o `<BrowserRouter>` dentro de `routes.js` pois como o nosso `<Header>` vai ser clicavel, nos precisamos dele ali em cima das `<Routes>` para ele poder fazer a navegaçāo.
+
+## Aula 03 - Estilos globais
+
+1. Dentro de `src` criar uma pasta `styles` com um arquivo `global.js`
+2. `yarn add styled-components`
+3. `global.js`:
+
+```
+import { createGlobalStyle } from 'styled-components';
+
+import background from '../assets/images/background.svg';
+
+export default createGlobalStyle`
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+  * {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #1f1f1f url(${background}) no-repeat center top;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body, input, button {
+    font: 14px Roboto, sans-serif;
+  }
+
+  #root {
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 0 20px 50px;
+  }
+
+  button {
+    cursor: pointer;
+  }
+`;
+```
+4. Vamos em `src > App.js`:
+
+```
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+
+* import GlobalStyle from './styles/global';
+import Routes from './routes';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes />
+  *    <GlobalStyle />
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+E nossos estilos serao aplicados em todas as paginas
