@@ -228,3 +228,301 @@ return (
     </BrowserRouter>
   );
 ```
+
+## Aula 05 - Estilizaçao da Home
+
+1. Dentro de `src > Home` vamos criar um arquivo `styles.js`
+2. Vamos fazer agora as duas paginas:
+
+`Home > index.js`:
+
+```
+import React from 'react';
+import { MdAddShoppingCart } from 'react-icons/md';
+
+import { ProductList } from './styles';
+
+export default function Home() {
+  return (
+    <ProductList>
+      <li>
+        <img
+          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x"
+          alt="Tênis"
+        />
+        <strong>Tênis muito legal</strong>
+        <span>R$129,90</span>
+
+        <button type="button">
+          <div>
+            <MdAddShoppingCart size={16} color="#fff" /> 3
+          </div>
+
+          <span>ADICIONAR AO CARRINHO</span>
+        </button>
+      </li>
+      <li>
+        <img
+          src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x"
+          alt="Tênis"
+        />
+        <strong>Tênis muito legal</strong>
+        <span>R$129,90</span>
+
+        <button type="button">
+          <div>
+            <MdAddShoppingCart size={16} color="#fff" /> 3
+          </div>
+
+          <span>ADICIONAR AO CARRINHO</span>
+        </button>
+      </li>
+  </ProductList>
+  );
+}
+```
+
+`Home > styles.js`:
+
+```
+import styled from 'styled-components';
+import { darken } from 'polished';
+
+export const ProductList = styled.ul`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 20px;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 4px;
+    padding: 20px;
+
+    img {
+      align-self: center;
+      max-width: 250px;
+    }
+
+    > strong {
+      font-size: 16px;
+      line-height: 20px;
+      color: #333;
+      margin-top: 5px;
+    }
+
+    > span {
+      font-size: 21px;
+      font-weight: bold;
+      margin: 5px 0 20px;
+    }
+
+    button {
+      background: #245edb;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: auto;
+
+      display: flex;
+      align-items: center;
+      transition: 0.2s;
+
+      &:hover {
+        background: ${darken(0.02, '#245ebd')};
+      }
+
+      div {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.1);
+
+        svg {
+          margin-right: 5px;
+        }
+      }
+
+      span {
+        flex: 1;
+        text-align: center;
+      }
+    }
+  }
+`;
+
+```
+## Aula 06 - Estilizaçāo do Carrinho
+
+`Cart > index.js`:
+
+```
+import React from 'react';
+import {
+  MdRemoveCircleOutline,
+  MdAddCircleOutline,
+  MdDelete,
+} from 'react-icons/md';
+
+import { Container, ProductTable, Total } from './styles';
+
+export default function Home() {
+  return (
+    <Container>
+      <ProductTable>
+        <thead>
+          <tr>
+            <th>PRODUTO</th>
+            <th>QTD</th>
+            <th>SUBTOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <img
+                src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x"
+                alt="Tênis"
+              />
+            </td>
+            <td>
+              <strong>Tênis muito massa</strong>
+              <span>R$129,90</span>
+            </td>
+            <td>
+              <div>
+                <button type="button">
+                  <MdRemoveCircleOutline size={20} color="#245edb" />
+                </button>
+                <input type="number" readOnly value={2} />
+                <button type="button">
+                  <MdAddCircleOutline size={20} color="#245edb" />
+                </button>
+              </div>
+            </td>
+            <td>
+              <strong>R$258,80</strong>
+            </td>
+            <td>
+              <button type="button">
+                <MdDelete size={20} color="#245edb" />
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </ProductTable>
+
+      <footer>
+        <button type="button">Finalizar Pedido</button>
+
+        <Total>
+          <span>TOTAL</span>
+          <strong>R$1920,90</strong>
+        </Total>
+      </footer>
+    </Container>
+  );
+}
+```
+
+`Cart > styles.js`:
+
+```
+import styled from 'styled-components';
+import { darken } from 'polished';
+
+export const Container = styled.div`
+  padding: 30px;
+  background: #fff;
+  border-radius: 4px;
+
+  footer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+      background: #245edb;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      padding: 12px 20px;
+      text-transform: uppercase;
+      transition: 0.2s;
+
+      &:hover {
+        background: ${darken(0.05, '#245edb')};
+      }
+    }
+  }
+`;
+
+export const ProductTable = styled.table`
+  width: 100%;
+
+  thead th {
+    color: #999;
+    text-align: left;
+    padding: 12px;
+  }
+
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  img {
+    height: 100px;
+  }
+
+  strong {
+    color: #333;
+    display: block;
+  }
+
+  span {
+    display: block;
+    margin-top: 5px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  div {
+    display: flex;
+    align-items: center;
+
+    input {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #666;
+      padding: 6px;
+      width: 50px;
+    }
+  }
+
+  button {
+    background: none;
+    border: 0;
+    padding: 6px;
+  }
+`;
+
+export const Total = styled.div`
+  display: flex;
+  align-items: baseline;
+
+  span {
+    color: #999;
+    font-weight: bold;
+  }
+
+  strong {
+    font-size: 26px;
+    margin-left: 5px;
+  }
+`;
+```
