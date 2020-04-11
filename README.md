@@ -138,3 +138,93 @@ export default App;
 ```
 
 E nossos estilos serao aplicados em todas as paginas
+
+## Aula 04 - Criando Header
+
+1. Dentro da pasta `src` vamos criar uma pasta `components`
+2. `yarn add react-icons`
+3. Dentro de dela criamos uma pasta `Header` com um arquivo `index.js` e um `styles.js`.
+
+`index.js`:
+
+```
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+import { MdShoppingBasket } from 'react-icons/md';
+
+import { Container, Cart } from './styles';
+
+import logo from '../../assets/images/logo.svg';
+
+export default function Header() {
+  return (
+    <Container>
+      <Link to="/">
+        <img src={logo} alt="Rocketshoes" />
+      </Link>
+
+      <Cart to="/cart">
+        <div>
+          <strong>Meu carrinho</strong>
+          <span>3 itens</span>
+        </div>
+        <MdShoppingBasket size={36} color="#fff" />
+      </Cart>
+    </Container>
+  );
+}
+```
+
+`styles.js`:
+
+```
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+
+export const Container = styled.header`
+  display: flex;
+  justify-content: space-between;
+  margin: 50px 0;
+`;
+
+export const Cart = styled(Link)`
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  div {
+    text-align: right;
+    margin-right: 10px;
+
+    strong {
+      display: block;
+      color: #fff;
+    }
+
+    span {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+`;
+```
+4. Em `src > App.js` colocamos assim:
+
+```
+...
+import Header from './components/Header';
+...
+return (
+    <BrowserRouter>
+  **    <Header />
+      <Routes />
+      <GlobalStyle />
+    </BrowserRouter>
+  );
+```
