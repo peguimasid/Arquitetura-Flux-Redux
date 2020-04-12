@@ -552,3 +552,59 @@ export default api;
 
 `json-server server.json -p 3333` -> Rodar uma unica vez.
 `json-server server.json -p 3333 -w` -> Rodar ouvindo mudancas no arquivo.
+
+## Aula 08 - Buscando produtos da API
+
+Vamos buscar os dados da nossa API e passar la pra home onde estao os produtos.
+
+1. Vamos em `pages > Home > index.js`
+
+```
+import React, { Component } from 'react';
+import { MdAddShoppingCart } from 'react-icons/md';
+import { formatPrice } from '../../util/format';
+ * import api from '../../services/api';
+
+import { ProductList } from './styles';
+
+export default class Home extends Component {
+ *   state = {
+ *     products: [],
+ *   };
+
+  *  async componentDidMount() {
+  *    const response = await api.get('products');
+  *
+  *    const data = response.data.map((product) => ({
+  *      ...product,
+  *      priceFormatted: formatPrice(product.price),
+  *    }));
+
+   *   this.setState({ products: data });
+  }
+
+ *   render() {
+    const { products } = this.state;
+
+    return (
+  *      <ProductList>
+  *        {products.map((product) => (
+  *          <li key={product.id}>
+  *            <img src={product.image} alt={product.title} />
+  *            <strong>{product.title}</strong>
+  *            <span>{product.priceFormatted}</span>
+  *
+  *            <button type="button">
+  *              <div>
+  *                <MdAddShoppingCart size={16} color="#fff" /> 3
+  *              </div>
+  *
+  *              <span>ADICIONAR AO CARRINHO</span>
+  *            </button>
+  *          </li>
+  *        ))}
+      </ProductList>
+    );
+  }
+}
+```
