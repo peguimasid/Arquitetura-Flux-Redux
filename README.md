@@ -526,3 +526,29 @@ export const Total = styled.div`
   }
 `;
 ```
+
+## Aula 07 - Configurando API
+
+Vamos configurar uma api fake com o ***JSON-Server*** e buscar dados dela.
+
+1. `yarn global add json-server`
+2. [Baixar o arquivo](https://skylab.rocketseat.com.br/api/files/1581084444037-attachment.json) e salvar como `server.json` na raiz da aplicaçāo.
+3. `yarn add axios`
+4. Criar dentro de `src` uma pasta `services` e dentro um arquivo `api.js`
+
+`api.js`:
+
+```
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3333',
+});
+
+export default api;
+```
+
+5. Para rodar a ***api*** é só rodar:
+
+`json-server server.json -p 3333` -> Rodar uma unica vez.
+`json-server server.json -p 3333 -w` -> Rodar ouvindo mudancas no arquivo.
