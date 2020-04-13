@@ -17,7 +17,7 @@
 
 Manipular estados Globais de uma aplicaçāo de forma robusta e escalavel.
 
-<h3 align="center">A partir da aula 09 comecamos <strong>Redux</strong></h3>
+<h3 align="center">A partir da aula 09 começamos <strong>Redux</strong></h3>
 
 ## Aula 01 - Criar projeto
 
@@ -687,7 +687,7 @@ const store = createStore(reducer);
 
 export default store;
 ```
-Mas podemos tambem podemos ter mais de um reducer dentro do nosso store, e para lidar com esse tipo de cas vamos fazer o seguinte.
+Mas podemos tambem podemos ter mais de um reducer dentro do nosso store, e para lidar com esse tipo de caso vamos fazer o seguinte.
 
 6. Vamos em `store > modules` e criamos um arquivo chamado `rootReducer.js`
 
@@ -718,3 +718,105 @@ const store = createStore(rootReducer);
 export default store;
 ```
 agora temos a configuracao do ***Redux*** pronta, e a partir da proxima aula vamos começar a passar dados para dentro do nosso estado global `cart` que criamos la dentrode `modules > cart > reducer.js`
+
+## Aula 10 - Adicionando ao carrinho
+
+Vamos adicionar itens ao carrinho utlizando o ***Redux***
+
+1. Vamos no componente que tem o botao de adicionar ao carrinho: `pages > Home > index.js`:
+
+```
+...
+import { connect } from 'react-redux';
+...
+```
+
+depois mudamos o `export default class Home extends Component { ...` para:
+
+`class Home extends Component {...`
+
+e passar o `export default` la para o final assim:
+
+`export default connect()(Home);`
+
+assim o Redux vai passar a ter acesso aos dados do nosso componente.
+
+2. vamos passar uma funçāo para o nosso botāo de ***Adicionar ao carrinho*** passando o produto como parametro.
+
+```
+<button
+  type="button"
+  * onClick={() => this.handleAddProduct(product)}
+>
+```
+
+3. Agora fora do `render()` criamos a funçāo que passamos:
+
+```
+handleAddProduct = (product) => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'ADD_TO_CART',
+      product,
+    });
+  };
+```
+4. Agora vamos em `store > modules > cart > reducer.js` e o que estava assim:
+
+```
+export default function cart() {
+  return [];
+}
+```
+
+vai ficar assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+      return [...state, action.product];
+    default:
+      return state;
+  }
+}
+```
+
+Por padrao todas as actions que acontecem os reducer's ouvem e armazenam, entao passamos o metodo `switch` ali para verificar se aquele tipo de action é `ADD_TO_CART` se for ele vai copiar todos os dados que ja temos no estado e passar o novo, caso contrario, ele so vai retornar o estado.
+
+5. Vamos agora em `src > components > Home > index.js` e fazemos o seguinte:
+
+```
+...
+import { connect } from 'react-redux';
+...
+```
+retiramos o `export default` e passamo no final igual fizemos no passo ***1***, e passamos o nosso Header assim agora:
+
+```
+function Header({ cartSize }) {
+                  ********
+  return (
+    <Container>
+      <Link to="/">
+        <img src={logo} alt="Rocketshoes" />
+      </Link>
+
+      <Cart to="/cart">
+        <div>
+          <strong>Meu carrinho</strong>
+          <span>{cartSize} itens</span>
+                 ********
+        </div>
+        <MdShoppingBasket size={36} color="#fff" />
+      </Cart>
+    </Container>
+  );
+}
+
+* export default connect((state) => ({
+*   cartSize: state.cart.length, // nome que passamos no rootReducer
+* }))(Header);
+```
+com isso ao clicarmos em um botao de adicionar ao carrinho ele vai adicionar o produto ao estado `cart` e mudar o numero que temo la mostrando a quantidade de itens que temo no carrinho (`2 itens`).
