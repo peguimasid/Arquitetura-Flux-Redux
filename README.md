@@ -17,6 +17,8 @@
 
 Manipular estados Globais de uma aplicaçāo de forma robusta e escalavel.
 
+<h3 align="center">A partir da aula 09 comecamos <strong>Redux</strong></h3>
+
 ## Aula 01 - Criar projeto
 
 Criamo um projeto ***ReactJS*** basico igual ensino no inicio da [parte 2 de react native](https://github.com/peguimasid/React-Part-2), e deixamos so um `Hello World` lá.
@@ -608,3 +610,111 @@ export default class Home extends Component {
   }
 }
 ```
+## Aula 09 - Configurando o Redux
+
+Vamos nessa aula começar a configurar o ***Redux*** para usar em nossa aplicaçāo.
+
+1. `yarn add redux react-redux`
+2. Dentro de `src` criamos uma pasta `store` de dentro dela um arquivo `index.js`
+
+`index.js`:
+
+```
+import { createStore } from 'redux';
+
+const store = createStore();
+
+export default store;
+```
+3. Depois disso vamos em `src > App.js` e passamos uma tag `<Provider>` por volta de todas as nossas rotas, o que vai fazer com que esse estado global fique disponive pra todos os componentes da aplicacao
+
+```
+...
+import { Provider } from 'react-redux';
+...
+import store from './store';
+...
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <Header />
+        <Routes />
+        <GlobalStyle />
+      </BrowserRouter>
+    </Provider>
+  );
+}
+```
+
+A principio vai dar erro pois nao podemos criar um store sem nehum reducer, e é isso que vamos fazer agora.
+
+4. Vamos em `src > store > index.js` e agora vamos adicionar isso:
+
+```
+import { createStore } from 'redux';
+
+* function cart() {
+*   return [];
+* }
+
+const store = createStore(cart);
+                          ****
+export default store;
+```
+como nao é legal mastermos os reducer's dentro do mesmo local que o store vamso fazer o seguinte.
+
+5. dentro de `src > store` criamos uma pasta `modules` e dentro dela outra pasta chamada `cart` e dentro dela um arquivo chamado `reducer.js`
+
+retiramos a `function cart()` de dentro do store e passamos dentro desse `reducer`, ficando assim:
+
+`reducer.js`:
+
+```
+export default function cart() {
+  return [];
+}
+```
+
+`src > store > index.js`:
+
+```
+import { createStore } from 'redux';
+
+import reducer from './modules/cart/reducer';
+
+const store = createStore(reducer);
+
+export default store;
+```
+Mas podemos tambem podemos ter mais de um reducer dentro do nosso store, e para lidar com esse tipo de cas vamos fazer o seguinte.
+
+6. Vamos em `store > modules` e criamos um arquivo chamado `rootReducer.js`
+
+`rootReducer`:
+
+```
+import { combineReducers } from 'redux';
+
+import cart from './cart/reducer';
+// import user from './user/reducer';
+
+export default combineReducers({
+  cart,
+  // user,
+});
+```
+Ai podemos criar quantos reducer's quisermos e passarmos ele dentro do `combineReducers`
+
+Agora voltamos la em `store > index.js` e passamos assim:
+
+```
+import { createStore } from 'redux';
+
+import rootReducer from './modules/rootReducer';
+
+const store = createStore(rootReducer);
+
+export default store;
+```
+agora temos a configuracao do ***Redux*** pronta, e a partir da proxima aula vamos começar a passar dados para dentro do nosso estado global `cart` que criamos la dentrode `modules > cart > reducer.js`
