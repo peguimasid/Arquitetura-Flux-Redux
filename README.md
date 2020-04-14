@@ -820,3 +820,61 @@ function Header({ cartSize }) {
 * }))(Header);
 ```
 com isso ao clicarmos em um botao de adicionar ao carrinho ele vai adicionar o produto ao estado `cart` e mudar o numero que temo la mostrando a quantidade de itens que temo no carrinho (`2 itens`).
+
+### O que fizemos:
+
+1. ***Home***: Conectamos ele com o redux e disparamos as `actions` com o `dispatch`
+2. ***Reducer***: Fizemos o reducer ouvir somente as action do tipo `ADD_TO_CART` e armazenamos no estado global
+3. Toda vez que o estado muda os componentes que estao usando aquele reducer sao avisados e atualizados.
+
+## Aula 11 - Reactotron + Redux
+
+Vamos configurar o ***Reactotron*** pois ele vai ajudar bastante a debugar a aplicaçāo com Redux.
+
+1. Rodar `yarn add reactotron-react-js reactotron-redux`
+2. Dentro de `src` criamos uma pasta `config` com um arquivo `ReactotronConfig.js`
+
+`ReactotronConfig.js`:
+
+```
+import Reactotron from 'reactotron-react-js';
+import { reactotronRedux } from 'reactotron-redux';
+
+if (process.env.NODE_ENV === 'development') {
+  const tron = Reactotron.configure().use(reactotronRedux()).connect();
+
+  tron.clear();
+
+  console.tron = tron;
+}
+```
+
+3. Vamos no arquivo `.eslintrc.js` e colocamos dentro de `rules`:
+
+`'no-console': ["error", {allow: ["tron"]}]`
+
+4. Vamos em `src > store > index.js` e colocamos assim:
+
+```
+import { createStore } from 'redux';
+
+import rootReducer from './modules/rootReducer';
+
+* const enhancer =
+*   process.env.NODE_ENV === 'development' ? console.tron.createEnhancer() : null;
+
+const store = createStore(rootReducer, enhancer);
+                                       ********
+
+export default store;
+```
+5. Vamos em `src > App.js` e acima da importacao de store colocamos:
+
+`import './config/ReactotronConfig';`
+
+### FIM
+
+Agora se clicarmos em ***Adicionar ao carrinho*** ele ira dar um console.log la no Reactotron.
+
+subscription do reactotron: "cart" = retorna os valores que estao dentro do reducer de cart;
+snapshots: salvamos o estado e se dermos upload retorna o estado que tava antes.
