@@ -1054,3 +1054,63 @@ export default function cart(state = [], action) {
   }
 }
 ```
+## Aula 14 - Remover produto
+
+Quando clicarmos na lixeira o produto que ele clicar saira do carrinho.
+
+1. Vamos em `src > pages > Cart > index.js` e fazemos o seguinte:
+
+passamos um novo parametro na funçao:
+
+```
+...
+function Cart({ cart, dispatch }) { ...
+                      ********
+...
+```
+
+2 Vamos no button e criamos a funçāo:
+
+```
+<button
+  type="button"
+*  onClick={() =>
+*    dispatch({ type: 'REMOVE_FROM_CART', id: product.id })
+*  }
+>
+```
+
+3. Vamos em `src > store > modules > cart > reducer.js` e no nosso reducer adicionamos o seguinte(*):
+
+```
+import produce from 'immer';
+
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+      return produce(state, (draft) => {
+        const productIndex = draft.findIndex((p) => p.id === action.product.id);
+
+        if (productIndex >= 0) {
+          draft[productIndex].amount += 1;
+        } else {
+          draft.push({
+            ...action.product,
+            amount: 1,
+          });
+        }
+      });
+ *   case 'REMOVE_FROM_CART':
+ *     return produce(state, (draft) => {
+ *       const productIndex = draft.findIndex((p) => p.id === action.id);
+ *
+ *       if (productIndex >= 0) {
+ *         draft.splice(productIndex, 1);
+ *       }
+ *     });
+    default:
+      return state;
+  }
+}
+```
+com isso ao clicarmos na lixeira ele excluirá aquele produto.
