@@ -901,7 +901,7 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps)(Cart);
 ```
 
-A partir desse momento a a funcao do carrinho ja tem acesso a uma propriedade `cart`(`function Cart({ cart }) {`)
+A partir desse momento a a funcao do carrinho ja tem acesso a uma propriedade `cart` -> (`function Cart({ cart }) {`)
 
 2. Vamos em `src > store > cart > reducer.js` e nosso reducer que estava assim:
 
@@ -1000,3 +1000,57 @@ function Cart({ cart }) {
 }
 ```
  Agora so falta juntarmos produtos do mesmo tipo, calcular o total, e permitir que o usuario adicione mais quantidade do produto pelos botoes + e -
+
+## Aula 13 - Produto duplicado
+
+Nessa aula vamos lidar com os produtos duplicados, ou seja, em vez de exibir dois produtos iguais no carrinho vamos apenas listar uma vez e adicionar a quantidade dele no input.
+
+E para isso vamos utilizar uma ferramenta chamada ***Immer***
+
+### Configurando
+
+1. `yarn add immer`
+2. Em `src > store > modules > cart > reducer.js` nosso reducer que estava assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+      return [
+        ...state,
+        {
+          ...action.product,
+          amount: 1,
+        },
+      ];
+    default:
+      return state;
+  }
+}
+```
+
+vai ficar assim:
+
+```
+* import produce from 'immer';
+
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+*      return produce(state, (draft) => {
+*        const productIndex = draft.findIndex((p) => p.id === action.product.id); // Verifica se ja tem um produto com aquele id quele estado
+*
+*        if (productIndex >= 0) { // SE TIVER SO VAMOS ADICIONAR UM NO AMOUNT
+*          draft[productIndex].amount += 1;
+*        } else { // SE NAO TIVER VAMOS CRIAR NORMALMENTE
+*          draft.push({
+*            ...action.product,
+*            amount: 1,
+*          });
+*        }
+*      });
+    default:
+      return state;
+  }
+}
+```
