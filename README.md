@@ -371,7 +371,7 @@ import {
 
 import { Container, ProductTable, Total } from './styles';
 
-export default function Home() {
+export default function Cart() {
   return (
     <Container>
       <ProductTable>
@@ -878,3 +878,125 @@ Agora se clicarmos em ***Adicionar ao carrinho*** ele ira dar um console.log la 
 
 subscription do reactotron: "cart" = retorna os valores que estao dentro do reducer de cart;
 snapshots: salvamos o estado e se dermos upload retorna o estado que tava antes.
+
+## Aula 12 - Listando no carrinho
+
+Vamos listar na rota `/cart` todos os produtos que adicionamos no carrinho.
+
+1. Vamos em `src > pages > Cart > index.js` e vamos fazer o seguinte:
+
+```
+...
+import { connect } from 'react-redux';
+...
+```
+depois tiramos o export default na de cima e passamos para baixo adicionando uma funcao `mapStateToProps` para pegar todos os dados que temos dentro do carrinho:
+
+```
+...
+const mapStateToProps = (state) => ({
+  cart: state.cart,
+});
+
+export default connect(mapStateToProps)(Cart);
+```
+
+A partir desse momento a a funcao do carrinho ja tem acesso a uma propriedade `cart`(`function Cart({ cart }) {`)
+
+2. Vamos em `src > store > cart > reducer.js` e nosso reducer que estava assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+      return [...state, action.product];
+    default:
+      return state;
+  }
+}
+```
+vai ficar assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case 'ADD_TO_CART':
+      return [
+        ...state,
+     *   {
+          ...action.product,
+     *     amount: 1,
+     *   },
+      ];
+    default:
+      return state;
+  }
+}
+
+```
+
+3. Nossa funçāo `Cart` agora vai ficar assim:
+
+```
+function Cart({ cart }) {
+  return (
+    <Container>
+      <ProductTable>
+        <thead>
+          <tr>
+            <th>PRODUTO</th>
+            <th>QTD</th>
+            <th>SUBTOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+  *        {cart.map((product) => (
+            <tr>
+              <td>
+                <img src={product.image} alt={product.title} />
+                          *********************************
+              </td>
+              <td>
+                <strong>{product.title}</strong>
+                         *************
+                <span>{product.priceFormatted}</span>
+                       **********************
+              </td>
+              <td>
+                <div>
+                  <button type="button">
+                    <MdRemoveCircleOutline size={20} color="#245edb" />
+                  </button>
+                  <input type="number" readOnly value={product.amount} />
+                                                       *************
+                  <button type="button">
+                    <MdAddCircleOutline size={20} color="#245edb" />
+                  </button>
+                </div>
+              </td>
+              <td>
+                <strong>R$258,80</strong>
+              </td>
+              <td>
+                <button type="button">
+                  <MdDelete size={20} color="#245edb" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </ProductTable>
+
+      <footer>
+        <button type="button">Finalizar Pedido</button>
+
+        <Total>
+          <span>TOTAL</span>
+          <strong>R$1920,90</strong>
+        </Total>
+      </footer>
+    </Container>
+  );
+}
+```
+ Agora so falta juntarmos produtos do mesmo tipo, calcular o total, e permitir que o usuario adicione mais quantidade do produto pelos botoes + e -
