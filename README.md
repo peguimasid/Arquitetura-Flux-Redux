@@ -1361,3 +1361,45 @@ function Cart({ cart, total, removeFromCart, updateAmount }) {
 
 `<strong>{total}</strong>`
 
+## Aula 18 - Exibindo quantidades
+
+Do lado do adicionar ao carrinho vamos exibir quantos daquele produto ja estao no carrinho.
+
+1. Vamos em `pages > Home > index.js` e la embaixo perto do nosso export default, o que estava assim:
+
+```
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(null, mapDispatchToProps)(Home);
+```
+
+vai ficar assim:
+
+```
+* const mapStateToProps = (state) => ({
+*   amount: state.cart.reduce((amount, product) => {
+*     amount[product.id] = product.amount;
+*
+*     return amount;
+*   }, {}),
+* });
+
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+                       ***************
+```
+2. Vamos la em cima depois dentro do `render()`:
+
+`const { amount } = this.props;`
+
+3. passamos o valor na tag:
+
+```
+<div>
+  <MdAddShoppingCart size={16} color="#fff" />{' '}
+  {amount[product.id] || 0}
+</div>
+```
