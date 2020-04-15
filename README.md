@@ -1119,7 +1119,9 @@ com isso ao clicarmos na lixeira ele excluirá aquele produto.
 
 Vamos refatoras as actions para ficar algo mais facil de ler e lidar com eventuais bugs.
 
-1. Dentro de `src > store > modules > cart` criamos um arquivo `actions.js`, vamos no Home e no Cart e copiamos o que esta dentro do `dispatch`, nosso arquivo `actions.js` vai ficar assim:
+1. Dentro de `src > store > modules > cart` criamos um arquivo `actions.js`, vamos no Home e no Cart e copiamos o que esta dentro do `dispatch`.
+
+ Nosso arquivo `actions.js` vai ficar assim:
 
 ```
 export function addToCart(product) {
@@ -1156,7 +1158,7 @@ dispatch(CartActions.removeFromCart(product.id));
 
 3. podemos facilitar ainda mais fazendo o seguinte:
 
-no arquivo onde temos as actions sendo usadas:
+No arquivo onde temos as actions sendo usadas:
 
 ```
 ...
@@ -1235,3 +1237,50 @@ export function removeFromCart(id) {
 depois vamos em `store > modules > cart > reducer.js` e mudamos o nome antigo que ele esta ouvindo para o novo que configuramos;
 
 ***EX:*** `case '@cart/ADD':`
+
+## Aula 16 - Alterando quantidade
+
+Vamos fazer as funcionalidades de adicionar mais um no input clicando nos botões de (+) e (-) alterando o valor no input.
+
+1. Vamos no nosso arquivo `store > modules > cart > actions.js` e adicionamos uma nova function:
+
+```
+export function updateAmount(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT',
+    id,
+    amount,
+  };
+}
+```
+
+2. Vamos em `pages > Cart > index.js` e acima do return colocamos essa function:
+
+```
+function Cart({ cart, removeFromCart, updateAmount }) {
+                                      ************
+*  function increment(product) {
+*    updateAmount(product.id, product.amount + 1);
+*  }
+*  function decrement(product) {
+*    updateAmount(product.id, product.amount - 1);
+*  }
+```
+
+3. Agora vamos em `store > modules > cart > reducer.js` e adicionamos um novo `case`:
+
+```
+case '@cart/UPDATE_AMOUNT': {
+      if (action.amount <= 0) {
+        return state;
+      }
+
+      return produce(state, (draft) => {
+        const productIndex = draft.findIndex((p) => p.id === action.id);
+
+        if (productIndex >= 0) {
+          draft[productIndex].amount = Number(action.amount);
+        }
+      });
+    }
+```
