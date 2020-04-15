@@ -1114,3 +1114,124 @@ export default function cart(state = [], action) {
 }
 ```
 com isso ao clicarmos na lixeira ele excluirá aquele produto.
+
+## Aula 15 - Refatorando Actions
+
+Vamos refatoras as actions para ficar algo mais facil de ler e lidar com eventuais bugs.
+
+1. Dentro de `src > store > modules > cart` criamos um arquivo `actions.js`, vamos no Home e no Cart e copiamos o que esta dentro do `dispatch`, nosso arquivo `actions.js` vai ficar assim:
+
+```
+export function addToCart(product) {
+  return {
+    type: 'ADD_TO_CART',
+    product,
+  };
+}
+
+export function removeFromCart(id) {
+  return {
+    type: 'REMOVE_FROM_CART',
+    id,
+  };
+}
+```
+
+2. ai vamos nos arquivos que usamos essas actions e fazemos o seguinte:
+
+```
+...
+import * as CartActions from '../../store/modules/cart/actions';
+...
+```
+e colocamos os dispatch's assim:
+
+```
+...
+dispatch(CartActions.addToCart(product));
+...
+dispatch(CartActions.removeFromCart(product.id));
+...
+```
+
+3. podemos facilitar ainda mais fazendo o seguinte:
+
+no arquivo onde temos as actions sendo usadas:
+
+```
+...
+import { bindActionCreators } from 'redux';
+...
+```
+
+e la no final acima fazemos o seguinte:
+
+```
+...
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(null, mapDispatchToProps)(Home);
+```
+
+no caso ali passamos `null` pois sera o `mapStateToProps` que nao temos ainda, e fazemos isso nos arquivos que temos as actions sendo usadas.
+
+Fazendo isso, nossas actions que estavam sendo chamadas assim:
+
+`dispatch(CartActions.addToCart(product));`
+
+agora podemos chamar assim:
+
+```
+handleAddProduct = (product) => {
+    const { addToCart } = this.props;
+
+ *   addToCart(product);
+  };
+```
+
+***Exemplo 2:*** `src > pages > Cart > index.js`:
+
+```
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(CartActions, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Cart);
+```
+
+La na `function Cart` passamos como prop a funcao que queremos usar (addToCart ou RemoveFromCart):
+
+`function Cart({ cart, removeFromCart }) { ...`
+
+e no botao:
+
+```
+<button
+  type="button"
+  onClick={() => removeFromCart(product.id)}
+>
+```
+4. outras coisa que podemos fazer agora é renomear a action pois como ela esta separada agora de onde ela é usada fica mais facil lidar com bugs.
+
+Entao para fazer isso vamos primeiro em `src > store > modules > cart > actions.js` e mudamos o nome das actions, ficando assim por exemplo:
+
+```
+export function addToCart(product) {
+  return {
+    type: '@cart/ADD',
+           *********
+    product,
+  };
+}
+
+export function removeFromCart(id) {
+  return {
+    type: '@cart/REMOVE',
+           ************
+    id,
+  };
+}
+```
+depois vamos em `store > modules > cart > reducer.js` e mudamos o nome antigo que ele esta ouvindo para o novo que configuramos;
+
+***EX:*** `case '@cart/ADD':`
