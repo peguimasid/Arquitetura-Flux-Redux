@@ -1299,3 +1299,65 @@ case '@cart/UPDATE_AMOUNT': {
     }
 ```
 
+## Aula 17 - Calculando totais
+
+Vamos calcular o Subtotal e o Total da compra.
+
+### Subtotal
+
+1. Vamos em `pages > Cart > index.js` e la no final nosso `mapStateToProps` que estava assim:
+
+```
+const mapStateToProps = (state) => ({
+  cart: state.cart,
+});
+```
+vai ficar assim:
+
+```
+...
+import { fromatPrice } from '../../util/format';
+...
+
+const mapStateToProps = (state) => ({
+  cart: state.cart.map((product) => ({
+    ...product,
+    subtotal: formatPrice(product.price * product.amount),
+  })),
+});
+```
+Mapeamos todo o array de produtos pegando cada produto e copiamos todos os dados nele existente, passando um novo campo `subtotal` que calcula o preco do produto vezes a quantidade que tem dele no carrinho.
+
+2. Agora é so adicionar na tag que queremos ver o subtotal:
+
+`<strong>{product.subtotal}</strong>`
+
+### Total
+
+1. Para isso vamos denovo no `mapStateToProps` que agora vai ficar assim:
+
+```
+const mapStateToProps = (state) => ({
+  cart: state.cart.map((product) => ({
+    ...product,
+    subtotal: formatPrice(product.price * product.amount),
+  })),
+*  total: formatPrice(
+*    state.cart.reduce((total, product) => {
+*      return total + product.price * product.amount;
+*    }, 0)
+*  ),
+});
+```
+
+2. Vamos la em cima na function `cart` e passamos o `total` como parametro na funcao:
+
+```
+function Cart({ cart, total, removeFromCart, updateAmount }) {
+                      *****
+```
+
+3. Vamo na tag que queremos e passamo o valor que vai receber o total:
+
+`<strong>{total}</strong>`
+
