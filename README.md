@@ -1267,7 +1267,21 @@ function Cart({ cart, removeFromCart, updateAmount }) {
 *  }
 ```
 
-3. Agora vamos em `store > modules > cart > reducer.js` e adicionamos um novo `case`:
+3. Adicionamos essa functions nos nossos botões:
+
+```
+<button type="button" onClick={() => decrement(product)}>
+                      *********************************
+  <MdRemoveCircleOutline size={20} color="#245edb" />
+</button>
+<input type="number" readOnly value={product.amount} />
+<button type="button" onClick={() => increment(product)}>
+                      *********************************
+  <MdAddCircleOutline size={20} color="#245edb" />
+</button>
+```
+
+4. Agora vamos em `store > modules > cart > reducer.js` e adicionamos um novo `case`:
 
 ```
 case '@cart/UPDATE_AMOUNT': {
@@ -1284,3 +1298,4 @@ case '@cart/UPDATE_AMOUNT': {
       });
     }
 ```
+
