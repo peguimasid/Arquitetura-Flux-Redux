@@ -1403,3 +1403,226 @@ export default connect(mapStateToProps, mapDispatchToProps)(Home);
   {amount[product.id] || 0}
 </div>
 ```
+## Aula 19 - Configurando Redux Saga
+
+Vamos aprender o conceito de ***Middlewares*** dentro do Redux e para utilizar esse conceito vamos usar uma ferramenta usada ***Redux Saga***, esse middlewares conseguem surgir efeito sobre as actions, o que chamamos de ***Side Effect***
+
+Entao para termos um primeiro conceito na pratica disso funcionando vamos utlizar o ***Redux Saga*** na nossa aplicaçāo.
+
+Temos bastantes passos na configuraçāo, mas sao quase sempre os mesmos independente do projeto.
+
+### Configurando
+
+1. Rodar `yarn add redux-saga`
+2. Dentro de `src > store > modules > cart` criamos um arquivo `sagas.js`
+
+`sagas.js`:
+```
+import { call, put, all, takeLatest } from 'redux-saga/effects';
+
+import api from '../../../services/api';
+
+import { addToCartSuccess } from './actions';
+
+function* addToCart({ id }) {
+  const response = yield call(api.get, `/products/${id}`);
+
+  yield put(addToCartSuccess(response.data));
+}
+
+export default all([takeLatest('@cart/ADD_REQUEST', addToCart)]);
+```
+
+- `function*`(generator) -> como se fosse o `async` de uma `async function`
+- `yield` -> como se fosse o `await`
+
+Vamos usar ele porque ele é mais potente e faz coisas que o `async` / `await` nao consegue fazer
+
+3. Vamos em `store > modules > cart > actions.js` e mudamos nossa action `addToCart(product)` para nao receber o produto inteiro, apenas o Id dele `addToCart(id)`:
+
+```
+export function addToCart(id) {
+                         ****
+  return {
+    type: '@cart/ADD',
+ *   id,
+  };
+}
+```
+
+4. Vamos em `pages > Home > index.js` e mudamos a function que adicionava ao carrinho que antes pegava o produto inteiro agora so vai pagar o id dele:
+
+```
+handleAddProduct = (id) => {
+                   ****
+    const { addToCart } = this.props;
+
+    addToCart(id);
+             ****
+  };
+
+...
+
+<button
+  type="button"
+  onClick={() => this.handleAddProduct(product.id)}
+                                              ****
+>
+```
+
+5. Agora vamos la em `store > modules > cart > actions.js` e vamos ter em vez de 1, duas actions para o ato de adicionar ao carrinho.
+
+estava assim:
+
+```
+export function addToCart(id) {
+  return {
+    type: '@cart/ADD',
+    id,
+  };
+}
+
+export function removeFromCart(id) {
+  return {
+    type: '@cart/REMOVE',
+    id,
+  };
+}
+
+export function updateAmount(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT',
+    id,
+    amount,
+  };
+}
+```
+
+ficou assim:
+
+```
+export function addToCartRequest(id) {
+  return {
+    type: '@cart/ADD_REQUEST',
+    id,
+  };
+}
+
+* export function addToCartSuccess(product) {
+*   return {
+*     type: '@cart/ADD_SUCCESS',
+*     product,
+*   };
+* }
+
+export function removeFromCart(id) {
+  return {
+    type: '@cart/REMOVE',
+    id,
+  };
+}
+
+export function updateAmount(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT',
+    id,
+    amount,
+  };
+}
+
+```
+fizemos isso pois basicamente quando o usuario clicar em ***Adicionar ao Carrinho*** ele vai disparar a primeira funçāo que é a `addToCartRequest` que sera apenas ouvida pelo Saga, depois que o saga ouvir essa action ele vai fazer a chamada a API e vai disparar a outra funçāo `addToCartSuccess` que vai ser recebida pelo nosso ***reducer*** (`modules > cart > reducer.js`) que por fim irá adicionar o produto ao carrinho.
+
+6. vamos agora em `store > modules > cart > reducer.js` e vamos trocar a action de adiconar que ele estava ouvindo `@cart/ADD` para a nova que ele deve ouvir `@cart/ADD_SUCCESS`:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case '@cart/ADD_SUCCESS':
+          ******************
+      return produce(state, (draft) => {
+        const productIndex = draft.findIndex((p) => p.id === action.product.id);
+
+        if (productIndex >= 0) {
+          draft[productIndex].amount += 1;
+        } else {
+          draft.push({
+            ...action.product,
+            amount: 1,
+          });
+        }
+      });
+```
+7. Agora vamos em `pages > Home > index.js` e em vez de dispararmos assim a funçāo:
+
+```
+handleAddProduct = (id) => {
+    const { addToCart } = this.props;
+
+    addToCart(id);
+  };
+```
+vamos disparar assim:
+
+```
+handleAddProduct = (id) => {
+    const { addToCartRequest } = this.props;
+                     *******
+
+    addToCartRequest(id);
+             *******
+  };
+```
+
+8. Dentro de `store > modules` criamos um arquivo `rootSaga.js` e a funçao dele é juntar todos os sagas em um unico arquivo:
+
+`rootSaga.js`:
+```
+import { all } from 'redux-saga/effects';
+
+import cart from './cart/sagas';
+
+export default function* rootSaga() {
+  return yield all([cart]);
+}
+```
+9. Agora vamos em `src > store > index.js` e substituimos o que estava assim:
+
+```
+import { createStore } from 'redux';
+
+import rootReducer from './modules/rootReducer';
+
+const enhancer =
+  process.env.NODE_ENV === 'development' ? console.tron.createEnhancer() : null;
+
+const store = createStore(rootReducer, enhancer);
+
+export default store;
+```
+
+para assim:
+
+```
+import { createStore, applyMiddleware, compose } from 'redux';
+                      ************************
+* import createSagaMiddleware from 'redux-saga';
+
+import rootReducer from './modules/rootReducer';
+* import rootSaga from './modules/rootSaga';
+
+* const sagaMiddleware = createSagaMiddleware();
+
+const enhancer =
+  process.env.NODE_ENV === 'development'
+    ? compose(console.tron.createEnhancer(), applyMiddleware(sagaMiddleware))
+      *******                                ******************************
+    : applyMiddleware(sagaMiddleware);
+      *******************************
+
+const store = createStore(rootReducer, enhancer);
+
+* sagaMiddleware.run(rootSaga);
+
+export default store;
+```
