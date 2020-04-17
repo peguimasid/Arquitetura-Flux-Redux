@@ -1626,3 +1626,103 @@ const store = createStore(rootReducer, enhancer);
 
 export default store;
 ```
+
+## Aula 20 - Reactotron + Saga
+
+Vamos configurar o plugin do Reactotron com o Saga que vai nos dar muito mais informações sobre o fluxo da nossa aplicaçāo.
+
+### Configurando
+
+1. `yarn add reactotron-redux-saga`
+2. vamos em `src > config > ReactotronConfig.js` e adicionamos:
+
+```
+...
+* import reactotronSaga from 'reactotron-redux-saga';
+
+if (process.env.NODE_ENV === 'development') {
+  const tron = Reactotron.configure()
+    .use(reactotronRedux())
+ *   .use(reactotronSaga())
+    .connect();
+...
+```
+3. Vamos em `src > store > index.js` e antes da `const sagaMiddleware` colocamos assim:
+
+```
+*const sagaMonitor =
+*  process.env.NODE_ENV === 'development'
+*    ? console.tron.createSagaMonitor()
+*    : null;
+
+const sagaMiddleware = createSagaMiddleware({
+  sagaMonitor,
+  ***********
+});
+```
+Agora se clicarmos no ***Adicionar ao Carrinho*** veremos um novo log escrito ***SAGA*** que mostra varias informacões sobre a nossa chamada, incluindo informações sobre o produto.
+
+## Aula 21 - Separando actions
+
+1. Vamos em `src > store > modules > cart > reducer.js` e o que estava assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case '@cart/ADD_SUCCESS':
+      return produce(state, (draft) => {
+        const productIndex = draft.findIndex((p) => p.id === action.product.id);
+
+        if (productIndex >= 0) {
+          draft[productIndex].amount += 1;
+        } else {
+          draft.push({
+            ...action.product,
+            amount: 1,
+          });
+        }
+      });
+```
+
+vai ficar assim:
+
+```
+export default function cart(state = [], action) {
+  switch (action.type) {
+    case '@cart/ADD_SUCCESS':
+      return produce(state, (draft) => {
+        const { product } = action;
+
+        draft.push(product);
+      });
+```
+
+2. Vamos em `src > store > modules > cart > sagas.js` e adicionamos:
+
+```
+import { addToCartSuccess, updateAmount } from './actions';
+                           ************
+
+function* addToCart({ id }) {
+  const productExists = yield select((state) =>
+    state.cart.find((p) => p.id === id)
+  );
+
+  if (productExists) {
+  *  const amount = productExists.amount + 1;
+
+  *  yield put(updateAmount(id, amount));
+  *} else {
+  *  const response = yield call(api.get, `/products/${id}`);
+
+  *  const data = {
+  *    ...response.data,
+  *    amount: 1,
+  *    priceFormatted: formatPrice(response.data.price),
+  *  };
+
+  *  yield put(addToCartSuccess(data));
+  }
+}
+```
+O que estamos fazendo é passar a funçāo de adicionar mais um ao carrinho e verificando se aquele produto ja nao existe para apenas adicionar um amount se ja existir.
