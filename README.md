@@ -1767,17 +1767,17 @@ function* addToCart({ id }) {
     state.cart.find((p) => p.id === id)
   );
 
-  * const stock = yield call(api.get, `/stock/${id}`);
+  *** const stock = yield call(api.get, `/stock/${id}`); //CHAMA O STOCK DA API
 
-  * const stockAmount = stock.data.amount;
-  * const currentAmount = productExists ? productExists.amount : 0;
+  *** const stockAmount = stock.data.amount; // PEGA O STOCK DA API
+  *** const currentAmount = productExists ? productExists.amount : 0; // VERIFICA SE O PRODUTO EXISTE E JA COLOCA A QUANTIDADE QUE TEM DELE NO STOCK
 
-  * const amount = currentAmount + 1;
+  *** const amount = currentAmount + 1; // PEGA A QUANTIDADE DELE NO CARRINHO ADICIONANDO MAIS UM
 
-  * if (amount > stockAmount) {
-  *   console.tron.warn('ERRO');
-  *   return;
-  * }
+  *** if (amount > stockAmount) { // VERIFICA SE QUANDO FORMOS ADICIONAR MAIS UM NAQUELE STOCK QUE TEMO NO CARRINHO, NAO VAI                                      ULTRAPASSAR A QUANTIDADE QUE TEMOS NO STOCK
+  ***   console.tron.warn('ERRO');
+  ***   return;
+  *** }
 
   if (productExists) {
     yield put(updateAmount(id, amount));
