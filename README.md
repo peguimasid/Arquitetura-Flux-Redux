@@ -1726,3 +1726,73 @@ function* addToCart({ id }) {
 }
 ```
 O que estamos fazendo é passar a funçāo de adicionar mais um ao carrinho e verificando se aquele produto ja nao existe para apenas adicionar um amount se ja existir.
+
+## Aula 22 - Estoque na adiçāo
+
+Vamos verificar se quando o usuario for adicionar o produto ao carrinho, nos temos ele em estoque, se nao tiver, o usuario nao vai poder adicionar.
+
+### Configurando
+
+1. Vamos em `src > store > modules > cart > sagas.js` e nossa function `addToCart` que antes estava assim:
+
+```
+function* addToCart({ id }) {
+  const productExists = yield select((state) =>
+    state.cart.find((p) => p.id === id)
+  );
+
+  if (productExists) {
+    const amount = productExists.amount + 1;
+
+    yield put(updateAmount(id, amount));
+  } else {
+    const response = yield call(api.get, `/products/${id}`);
+
+    const data = {
+      ...response.data,
+      amount: 1,
+      priceFormatted: formatPrice(response.data.price),
+    };
+
+    yield put(addToCartSuccess(data));
+  }
+}
+```
+
+vai ficar assim:
+
+```
+function* addToCart({ id }) {
+  const productExists = yield select((state) =>
+    state.cart.find((p) => p.id === id)
+  );
+
+  * const stock = yield call(api.get, `/stock/${id}`);
+
+  * const stockAmount = stock.data.amount;
+  * const currentAmount = productExists ? productExists.amount : 0;
+
+  * const amount = currentAmount + 1;
+
+  * if (amount > stockAmount) {
+  *   console.tron.warn('ERRO');
+  *   return;
+  * }
+
+  if (productExists) {
+    yield put(updateAmount(id, amount));
+  } else {
+    const response = yield call(api.get, `/products/${id}`);
+
+    const data = {
+      ...response.data,
+      amount: 1,
+      priceFormatted: formatPrice(response.data.price),
+    };
+
+    yield put(addToCartSuccess(data));
+  }
+}
+```
+
+O que estamos fazendo é pegar a nova rota Stock e verificando quando o usuario for adicionar, se a quantidade que ja esta no carrinho + 1, nao vai ser maior que a quantidade que temos em estoque, ai damos um console.log mostrando erro, na proxima aula vamos aprender a mostrar uma mensagem para dizer que ja nao tem em estoque.
