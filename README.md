@@ -1796,3 +1796,59 @@ function* addToCart({ id }) {
 ```
 
 O que estamos fazendo é pegar a nova rota Stock e verificando quando o usuario for adicionar, se a quantidade que ja esta no carrinho + 1, nao vai ser maior que a quantidade que temos em estoque, ai damos um console.log mostrando erro, na proxima aula vamos aprender a mostrar uma mensagem para dizer que ja nao tem em estoque.
+
+## Aula 23 - React Toastify
+
+Vamos instalar uma biblioteca que vai mostar mensagens de sucesso ou de erro para o usuario para informa-lo quando foi adicionado ao carrinho, ou avisar que ja esgotou aquele produto.
+
+### Configurando
+
+1. `yarn add react-toastify`
+2. Vamos em `src > App.js` e fazemos o seguinte:
+
+```
+...
+import { ToastContainer } from 'react-toastify';
+...
+<Provider store={store}>
+  <BrowserRouter>
+    <Header />
+    <Routes />
+    <GlobalStyle />                 // Pode ser o tempo que quisermos
+    *    <ToastContainer autoClose={3000} />
+  </BrowserRouter>
+</Provider>
+```
+
+3. Vamos em `src > styles > global.js` e adicionamos:
+
+```
+...
+import 'react-toastify/dist/ReactToastify.css';
+...
+```
+
+4. Vamos em `store > modules > cart > sagas.js` e adicionamos:
+
+```
+...
+import { toast } from 'react-toastify';
+...
+```
+e no lugar de:
+
+```
+if (amount > stockAmount) {
+    console.tron.warn('ERRO');
+    return;
+  }
+```
+colocamos:
+
+```
+if (amount > stockAmount) {
+    toast.error('Produto Esgotado');
+    return;
+  }
+```
+e podemos colocar a mensagem que quisermos, agora quando ultrapassar a quantidade existente no estoque ele vai mostar essa mensagem.
