@@ -1990,3 +1990,101 @@ function* updateAmount({ id, amount }) {
   yield put(updateAmountSuccess(id, amount));
 }
 ```
+
+## Aula 25 - Navegando no Saga
+
+Vamos fazer com que ao clicar em ***Adicionar ao Carrinho*** o usuario seja redirecionado para a pagina de carrinho.
+
+Nao podemos adicionar simplesment um `this.props.history.push('/cart');` no final da funcao de adicionar ao carrinho pq mesmo que funcione, ela ira ser realizada antes de o produto ser adicionado realmente ao carrinho, entao temos que fazer o seguinte.
+
+### Configurando
+
+1. `yarn add history`
+2. Dentro de `src > services` criamos um arquivo `history.js`
+
+`history.js`:
+```
+import { createBrowserHistory } from 'history';
+
+const history = createBrowserHistory();
+
+export default history;
+```
+
+3. Vamos em `src > App.js` e o que estava assim:
+
+```
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
+
+import './config/ReactotronConfig';
+
+import GlobalStyle from './styles/global';
+import Header from './components/Header';
+import Routes from './routes';
+
+import store from './store';
+
+function App() {
+  return (
+    <Provider store={store}>
+      <BrowserRouter>
+        <Header />
+        <Routes />
+        <GlobalStyle />
+        <ToastContainer autoClose={3000} />
+      </BrowserRouter>
+    </Provider>
+  );
+}
+
+export default App;
+```
+
+vai ficar assim:
+
+```
+import React from 'react';
+import { Router } from 'react-router-dom';
+         ******
+import { Provider } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
+
+import './config/ReactotronConfig';
+
+import GlobalStyle from './styles/global';
+import Header from './components/Header';
+import Routes from './routes';
+
+* import history from './services/history';
+import store from './store';
+
+function App() {
+  return (
+    <Provider store={store}>
+      <Router history={history}>
+      **************************
+        <Header />
+        <Routes />
+        <GlobalStyle />
+        <ToastContainer autoClose={3000} />
+      </Router>
+    </Provider>
+  );
+}
+
+export default App;
+```
+4. Vamos em `store > modules > cart > sagas.js`:
+
+```
+...
+import history from '../../../services/history';
+...
+```
+
+e no final da function `addToCart`
+
+`history.push('/cart');`
