@@ -1852,3 +1852,141 @@ if (amount > stockAmount) {
   }
 ```
 e podemos colocar a mensagem que quisermos, agora quando ultrapassar a quantidade existente no estoque ele vai mostar essa mensagem.
+
+## Aula 24 - Estoque na alteraçāo
+
+Quando formos no carrinho e apertarmos no botao + ele vai verificar se temos o produto no estoque ou nao, coisa que ele so esta fazendo quando adicionamos na pagina principal.
+
+### Configurando
+
+1. Vamos em `store > modules > cart > actions.js` e nossa function `updateAmount` que estava assim:
+
+```
+export function updateAmount(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT',
+    id,
+    amount,
+  };
+}
+```
+
+vai ficar assim:
+
+```
+export function updateAmountRequest(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT_REQUEST',
+    id,
+    amount,
+  };
+}
+
+export function updateAmountSuccess(id, amount) {
+  return {
+    type: '@cart/UPDATE_AMOUNT_SUCCESS',
+    id,
+    amount,
+  };
+}
+```
+
+2. Depois vamos em `pages > Cart > index.js` e mudamos a function que vai ser ouvida:
+
+```
+function Cart({ cart, total, removeFromCart, updateAmountRequest }) {
+                                                         *******
+  function increment(product) {
+    updateAmountRequest(product.id, product.amount + 1);
+                *******
+  }
+  function decrement(product) {
+    updateAmountRequest(product.id, product.amount - 1);
+                *******
+  }
+```
+3. Vamos em `store > modules > cart > reducer.js` e nosso reducer que estava assim:
+
+```
+case '@cart/UPDATE_AMOUNT': {
+      if (action.amount <= 0) {
+        return state;
+      }
+
+      return produce(state, (draft) => {
+        const productIndex = draft.findIndex((p) => p.id === action.id);
+
+        if (productIndex >= 0) {
+          draft[productIndex].amount = Number(action.amount);
+        }
+      });
+    }
+```
+vai ficar assim:
+
+```
+case '@cart/UPDATE_AMOUNT_SUCCESS': {
+    return produce(state, (draft) => {
+      const productIndex = draft.findIndex((p) => p.id === action.id);
+
+      if (productIndex >= 0) {
+      draft[productIndex].amount = Number(action.amount);
+    }
+  });
+```
+
+4. Vamos em `store > modules > Cart > sagas.js` e mudamos a function que estava sendo ouvida tambem:
+
+```
+import { addToCartSuccess, updateAmountSuccess } from './actions';
+                                       *******
+
+function* addToCart({ id }) {
+  const productExists = yield select((state) =>
+    state.cart.find((p) => p.id === id)
+  );
+
+  const stock = yield call(api.get, `/stock/${id}`);
+
+  const stockAmount = stock.data.amount;
+  const currentAmount = productExists ? productExists.amount : 0;
+
+  const amount = currentAmount + 1;
+
+  if (amount > stockAmount) {
+    toast.error('Produto Esgotado');
+    return;
+  }
+
+  if (productExists) {
+    yield put(updateAmountSuccess(id, amount));
+                          *******
+  } else { ...
+```
+
+no final adicionamos:
+
+```
+export default all([
+  takeLatest('@cart/ADD_REQUEST', addToCart),
+  ** takeLatest('@cart/UPDATE_AMOUNT_REQUEST', updateAmount),
+]);
+```
+
+e criamos a function `updateAmount()` logo acima:
+
+```
+function* updateAmount({ id, amount }) {
+  if (amount <= 0) return;
+
+  const stock = yield call(api.get, `stock/${id}`);
+  const stockAmount = stock.data.amount;
+
+  if (amount > stockAmount) {
+    toast.error('Produto Esgotado');
+    return;
+  }
+
+  yield put(updateAmountSuccess(id, amount));
+}
+```
