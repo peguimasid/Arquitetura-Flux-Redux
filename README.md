@@ -9,7 +9,7 @@
 ### Rodando na sua maquina:
 
 1. Baixe o arquivo ***.ZIP***
-2. `cd React-Native-Intro-master`
+2. `cd redux-react-08-master`
 3. `yarn` para instalar as dependencias
 4. `yarn start` para iniciar o servidor e abrirá automaticamente
 
