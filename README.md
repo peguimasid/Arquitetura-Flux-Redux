@@ -9,7 +9,7 @@
 <br>
 
 <p align="center">
-  <img alt="RocketShoes" src="./src/assets/rocketshoes.png" width="60%">
+  <img alt="RocketShoes" src="./src/assets/rocketshoes.png" width="90%">
 </p>
 
 ### Rodando na sua maquina:
