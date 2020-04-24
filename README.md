@@ -6,6 +6,12 @@
   :rocket: [Bootcamp GoStack#10] Arquitetura Flux, Redux, Redux Saga.
 </h3>
 
+<br>
+
+<p align="center">
+  <img alt="RocketShoes" src="./assets/rocketshoes.png" width="60%">
+</p>
+
 ### Rodando na sua maquina:
 
 1. Baixe o arquivo ***.ZIP***
